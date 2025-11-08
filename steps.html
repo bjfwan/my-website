@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>火车票查询 - 渐进式代码教程</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="code-style.css">
+    <style>
+        .step-progress {
+            display: flex;
+            gap: 5px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        .step-badge {
+            padding: 8px 15px;
+            background: #21262d;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #8b949e;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #30363d;
+        }
+        .step-badge:hover {
+            background: #30363d;
+            color: #c9d1d9;
+        }
+        .step-badge.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        .score {
+            background: rgba(82, 196, 26, 0.2);
+            color: #52C41A;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin-left: 5px;
+        }
+        .step-info {
+            background: #161b22;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #30363d;
+        }
+        .step-info h4 {
+            color: #58a6ff;
+            margin-bottom: 10px;
+        }
+        .step-info ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .step-info li {
+            color: #8b949e;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1>🚄 火车票查询 - 渐进式代码教程</h1>
+            <a href="index.html" class="home-link">返回首页</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="project-info">
+            <h2>渐进式学习方案</h2>
+            <p>本教程将火车票查询系统的代码按照<strong>13个功能点</strong>渐进式展示。</p>
+            <p><strong>每个Step都是完整可运行的代码，并累积包含前面所有步骤的功能。</strong></p>
+            <p style="margin-top: 15px;">📚 选择下方任意步骤查看该阶段的完整代码</p>
+        </div>
+
+        <div class="step-progress">
+            <div class="step-badge active" data-step="1">Step01<span class="score">10分</span></div>
+            <div class="step-badge" data-step="2">Step02<span class="score">5分</span></div>
+            <div class="step-badge" data-step="3">Step03<span class="score">3分</span></div>
+            <div class="step-badge" data-step="4">Step04<span class="score">3分</span></div>
+            <div class="step-badge" data-step="5">Step05<span class="score">5分</span></div>
+            <div class="step-badge" data-step="6">Step06<span class="score">5分</span></div>
+            <div class="step-badge" data-step="7">Step07<span class="score">2分</span></div>
+            <div class="step-badge" data-step="8">Step08<span class="score">3分</span></div>
+            <div class="step-badge" data-step="9">Step09<span class="score">4分</span></div>
+            <div class="step-badge" data-step="10">Step10<span class="score">4分</span></div>
+            <div class="step-badge" data-step="11">Step11<span class="score">3分</span></div>
+            <div class="step-badge" data-step="12">Step12<span class="score">3分</span></div>
+            <div class="step-badge" data-step="13">Step13<span class="score">5分</span></div>
+        </div>
+
+        <div class="code-container" id="step-1" style="display: block;">
+            <div class="step-info">
+                <h4>📍 Step01 - 城市选择功能（10分）</h4>
+                <ul>
+                    <li>✅ 读取city.json获取城市数据</li>
+                    <li>✅ 显示出发地/目的地选择</li>
+                    <li>✅ 弹出城市列表对话框</li>
+                </ul>
+            </div>
+            <h3>Index.ets</h3>
+            <pre><code class="language-typescript">import router from '@ohos.router'
+import { resourceManager } from '@kit.LocalizationKit'
+import { util } from '@kit.ArkTS'
+import { CityModel } from '../model/CityModel'
+
+@Entry
+@Component
+struct Index {
+  @State startCity: string = '请选择'
+  @State endCity: string = '请选择'
+  @State cityList: string[] = []
+  @State showCityDialog: boolean = false
+  @State selectType: string = ''
+
+  async aboutToAppear() {
+    await this.loadCityData()
+  }
+
+  async loadCityData() {
+    try {
+      const context = getContext(this)
+      const mgr: resourceManager.ResourceManager = context.resourceManager
+      const rawFileData: Uint8Array = await mgr.getRawFileContent('city.json')
+      const textDecoder = util.TextDecoder.create('utf-8')
+      const jsonStr: string = textDecoder.decodeToString(rawFileData)
+      const cityModel: CityModel = JSON.parse(jsonStr)
+      this.cityList = cityModel.cities
+    } catch (error) {
+      console.error('读取城市数据失败:', error)
+    }
+  }
+
+  openCityDialog(type: string) {
+    this.selectType = type
+    this.showCityDialog = true
+  }
+
+  selectCity(city: string) {
+    if (this.selectType === 'start') {
+      this.startCity = city
+    } else {
+      this.endCity = city
+    }
+    this.showCityDialog = false
+  }
+
+  @Builder
+  cityDialogBuilder() {
+    Column() {
+      Text('选择城市')
+        .fontSize(20)
+        .fontWeight(FontWeight.Bold)
+        .padding(15)
+
+      List() {
+        ForEach(this.cityList, (city: string) => {
+          ListItem() {
+            Text(city)
+              .width('100%')
+              .padding(15)
+              .onClick(() => this.selectCity(city))
+          }
+        })
+      }
+      .height('80%')
+
+      Button('取消')
+        .width('90%')
+        .margin({ top: 10, bottom: 10 })
+        .onClick(() => this.showCityDialog = false)
+    }
+    .width('100%')
+    .height('100%')
+    .backgroundColor(Color.White)
+  }
+
+  build() {
+    Stack() {
+      Column() {
+        Text('火车票查询')
+          .fontSize(24)
+          .fontWeight(FontWeight.Bold)
+          .margin({ top: 20, bottom: 30 })
+
+        Column() {
+          Row() {
+            Text('出发地')
+              .width(80)
+            Text(this.startCity)
+              .layoutWeight(1)
+              .textAlign(TextAlign.End)
+            Image($r('app.media.startIcon'))
+              .width(20)
+              .height(20)
+              .margin({ left: 10 })
+          }
+          .width('100%')
+          .padding(15)
+          .backgroundColor(Color.White)
+          .borderRadius(8)
+          .onClick(() => this.openCityDialog('start'))
+
+          Row() {
+            Text('目的地')
+              .width(80)
+            Text(this.endCity)
+              .layoutWeight(1)
+              .textAlign(TextAlign.End)
+            Image($r('app.media.startIcon'))
+              .width(20)
+              .height(20)
+              .margin({ left: 10 })
+          }
+          .width('100%')
+          .padding(15)
+          .backgroundColor(Color.White)
+          .borderRadius(8)
+          .margin({ top: 10 })
+          .onClick(() => this.openCityDialog('end'))
+        }
+        .width('90%')
+        .margin({ top: 20 })
+      }
+      .width('100%')
+      .height('100%')
+      .backgroundColor('#F5F5F5')
+
+      if (this.showCityDialog) {
+        this.cityDialogBuilder()
+      }
+    }
+    .width('100%')
+    .height('100%')
+  }
+}</code></pre>
+
+            <h3>CityModel.ets</h3>
+            <pre><code class="language-typescript">export class CityModel {
+  cities: string[] = []
+}</code></pre>
+        </div>
+
+        <div class="code-container" id="step-2" style="display: none;">
+            <div class="step-info">
+                <h4>📍 Step02 - 日期选择功能（5分）</h4>
+                <ul>
+                    <li>🔄 包含Step01所有功能</li>
+                    <li>✅ 新增日期选择功能</li>
+                    <li>✅ 默认显示今天日期</li>
+                </ul>
+            </div>
+            <h3>Index.ets（完整代码）</h3>
+            <pre><code class="language-typescript">import router from '@ohos.router'
+import { resourceManager } from '@kit.LocalizationKit'
+import { util } from '@kit.ArkTS'
+import { CityModel } from '../model/CityModel'
+
+@Entry
+@Component
+struct Index {
+  @State startCity: string = '请选择'
+  @State endCity: string = '请选择'
+  @State selectedDate: string = this.getTodayDate()
+  @State cityList: string[] = []
+  @State showCityDialog: boolean = false
+  @State selectType: string = ''
+
+  async aboutToAppear() {
+    await this.loadCityData()
+  }
+
+  getTodayDate(): string {
+    const date = new Date()
+    const year = date.getFullYear()
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const day = date.getDate().toString().padStart(2, '0')
+    return \`\${year}-\${month}-\${day}\`
+  }
+
+  async loadCityData() {
+    try {
+      const context = getContext(this)
+      const mgr: resourceManager.ResourceManager = context.resourceManager
+      const rawFileData: Uint8Array = await mgr.getRawFileContent('city.json')
+      const textDecoder = util.TextDecoder.create('utf-8')
+      const jsonStr: string = textDecoder.decodeToString(rawFileData)
+      const cityModel: CityModel = JSON.parse(jsonStr)
+      this.cityList = cityModel.cities
+    } catch (error) {
+      console.error('读取城市数据失败:', error)
+    }
+  }
+
+  openCityDialog(type: string) {
+    this.selectType = type
+    this.showCityDialog = true
+  }
+
+  selectCity(city: string) {
+    if (this.selectType === 'start') {
+      this.startCity = city
+    } else {
+      this.endCity = city
+    }
+    this.showCityDialog = false
+  }
+
+  @Builder
+  cityDialogBuilder() {
+    Column() {
+      Text('选择城市')
+        .fontSize(20)
+        .fontWeight(FontWeight.Bold)
+        .padding(15)
+
+      List() {
+        ForEach(this.cityList, (city: string) => {
+          ListItem() {
+            Text(city)
+              .width('100%')
+              .padding(15)
+              .onClick(() => this.selectCity(city))
+          }
+        })
+      }
+      .height('80%')
+
+      Button('取消')
+        .width('90%')
+        .margin({ top: 10, bottom: 10 })
+        .onClick(() => this.showCityDialog = false)
+    }
+    .width('100%')
+    .height('100%')
+    .backgroundColor(Color.White)
+  }
+
+  build() {
+    Stack() {
+      Column() {
+        Text('火车票查询')
+          .fontSize(24)
+          .fontWeight(FontWeight.Bold)
+          .margin({ top: 20, bottom: 30 })
+
+        Column() {
+          Row() {
+            Text('出发地')
+              .width(80)
+            Text(this.startCity)
+              .layoutWeight(1)
+              .textAlign(TextAlign.End)
+            Image($r('app.media.startIcon'))
+              .width(20)
+              .height(20)
+              .margin({ left: 10 })
+          }
+          .width('100%')
+          .padding(15)
+          .backgroundColor(Color.White)
+          .borderRadius(8)
+          .onClick(() => this.openCityDialog('start'))
+
+          Row() {
+            Text('目的地')
+              .width(80)
+            Text(this.endCity)
+              .layoutWeight(1)
+              .textAlign(TextAlign.End)
+            Image($r('app.media.startIcon'))
+              .width(20)
+              .height(20)
+              .margin({ left: 10 })
+          }
+          .width('100%')
+          .padding(15)
+          .backgroundColor(Color.White)
+          .borderRadius(8)
+          .margin({ top: 10 })
+          .onClick(() => this.openCityDialog('end'))
+
+          Row() {
+            Text('出发日期')
+              .width(80)
+            Text(this.selectedDate)
+              .layoutWeight(1)
+              .textAlign(TextAlign.End)
+            Image($r('app.media.startIcon'))
+              .width(20)
+              .height(20)
+              .margin({ left: 10 })
+          }
+          .width('100%')
+          .padding(15)
+          .backgroundColor(Color.White)
+          .borderRadius(8)
+          .margin({ top: 10 })
+          .onClick(() => {
+            DatePickerDialog.show({
+              start: new Date(),
+              selected: new Date(this.selectedDate),
+              onAccept: (value: DatePickerResult) => {
+                const month = value.month !== undefined ? value.month + 1 : 1
+                const day = value.day !== undefined ? value.day : 1
+                this.selectedDate = \`\${value.year}-\${month.toString().padStart(2, '0')}-\${day.toString().padStart(2, '0')}\`
+              }
+            })
+          })
+        }
+        .width('90%')
+        .margin({ top: 20 })
+      }
+      .width('100%')
+      .height('100%')
+      .backgroundColor('#F5F5F5')
+
+      if (this.showCityDialog) {
+        this.cityDialogBuilder()
+      }
+    }
+    .width('100%')
+    .height('100%')
+  }
+}</code></pre>
+        </div>
+
+        <div class="code-container" id="step-13" style="display: none;">
+            <div class="step-info">
+                <h4>📍 Step13 - Web功能（完整功能）</h4>
+                <ul>
+                    <li>🎉 包含Step01~12所有功能</li>
+                    <li>✅ 新增WebPage页面</li>
+                    <li>✅ 访问12306官网</li>
+                    <li>💯 <strong>全部55分功能完成！</strong></li>
+                </ul>
+            </div>
+            <p style="color: #58a6ff; margin-bottom: 20px;">完整代码请访问：<a href="code.html" style="color: #58a6ff;">查看完整代码展示</a></p>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2024 HarmonyOS 火车票查询项目 - 渐进式学习教程</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            hljs.highlightAll();
+
+            const badges = document.querySelectorAll('.step-badge');
+            const containers = document.querySelectorAll('.code-container');
+
+            badges.forEach(badge => {
+                badge.addEventListener('click', () => {
+                    badges.forEach(b => b.classList.remove('active'));
+                    badge.classList.add('active');
+
+                    const stepNum = badge.getAttribute('data-step');
+                    
+                    containers.forEach(container => {
+                        container.style.display = 'none';
+                    });
+
+                    const targetContainer = document.getElementById(\`step-\${stepNum}\`);
+                    if (targetContainer) {
+                        targetContainer.style.display = 'block';
+                        hljs.highlightAll();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
