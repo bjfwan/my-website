@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Step04 - 查询详情日期</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🚄 Step04 - 查询详情日期</h1>
+            <p class="subtitle"><a href="step03.html" style="color: #58a6ff;">← Step03</a> | <a href="index.html" style="color: #58a6ff;">主页</a> | <a href="step05.html" style="color: #58a6ff;">Step05 →</a></p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="info-box">
+            <h3>📋 功能说明</h3>
+            <ul>
+                <li>✅ 包含Step01-03所有功能</li>
+                <li>✅ 详情页显示出发日期</li>
+                <li>🎯 分值：3分</li>
+            </ul>
+        </div>
+
+        <div class="file-block">
+            <div class="file-header">
+                <span class="file-name">📄 Index.ets（与Step03相同）</span>
+                <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+            </div>
+            <pre><code class="language-typescript">import router from '@ohos.router'
+import { resourceManager } from '@kit.LocalizationKit'
+import { util } from '@kit.ArkTS'
+import { CityModel } from '../model/CityModel'
+
+@Entry
+@Component
+struct Index {
+  @State startCity: string = '请选择'
+  @State endCity: string = '请选择'
+  @State selectedDate: string = this.getTodayDate()
+  @State cityList: string[] = []
+  @State showCityDialog: boolean = false
+  @State selectType: string = ''
+
+  async aboutToAppear() {
+    await this.loadCityData()
+  }
+
+  getTodayDate(): string {
+    const date = new Date()
+    const year = date.getFullYear()
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const day = date.getDate().toString().padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
+  async loadCityData() {
+    try {
+      const context = getContext(this)
+      const mgr: resourceManager.ResourceManager = context.resourceManager
+      const rawFileData: Uint8Array = await mgr.getRawFileContent('city.json')
+      const textDecoder = util.TextDecoder.create('utf-8')
+      const jsonStr: string = textDecoder.decodeToString(rawFileData)
+      const cityModel: CityModel = JSON.parse(jsonStr)
+      this.cityList = cityModel.cities
+    } catch (error) {
+      console.error('读取城市数据失败:', error)
+    }
+  }
+
+  openCityDialog(type: string) {
+    this.selectType = type
+    this.showCityDialog = true
+  }
+
+  selectCity(city: string) {
+    if (this.selectType === 'start') {
+      this.startCity = city
+    } else {
+      this.endCity = city
+    }
+    this.showCityDialog = false
+  }
+
+  queryTicket() {
+    if (this.startCity === '请选择' || this.endCity === '请选择') {
+      return
+    }
+    router.pushUrl({
+      url: 'pages/DetailPage',
+      params: {
+        startCity: this.startCity,
+        endCity: this.endCity,
+        date: this.selectedDate
+      }
+    })
+  }
+
+  @Builder
+  cityDialogBuilder() {
+    Column() {
+      Text('选择城市')
+        .fontSize(20)
+        .fontWeight(FontWeight.Bold)
+        .padding(15)
+
+      List() {
+        ForEach(this.cityList, (city: string) => {
+          ListItem() {
+            Text(city)
+              .width('100%')
+              .padding(15)
+              .onClick(() => this.selectCity(city))
+          }
+        })
+      }
+      .height('80%')
+
+      Button('取消')
+        .width('90%')
+        .margin({ top: 10, bottom: 10 })
+        .onClick(() => this.showCityDialog = false)
+    }
+    .width('100%')
+    .height('100%')
+    .backgroundColor(Color.White)
+  }
+
+  build() {
+    Stack() {
+      Column() {
+        Text('火车票查询')
+          .fontSize(24)
+          .fontWeight(FontWeight.Bold)
+          .margin({ top: 20, bottom: 30 })
+
+        Column() {
+          Row() {
+            Text('出发地')
+              .width(80)
+            Text(this.startCity)
+              .layoutWeight(1)
+              .textAlign(TextAlign.End)
+            Image($r('app.media.startIcon'))
+              .width(20)
+              .height(20)
+              .margin({ left: 10 })
+          }
+          .width('100%')
+          .padding(15)
+          .backgroundColor(Color.White)
+          .borderRadius(8)
+          .onClick(() => this.openCityDialog('start'))
+
+          Row() {
+            Text('目的地')
+              .width(80)
+            Text(this.endCity)
+              .layoutWeight(1)
+              .textAlign(TextAlign.End)
+            Image($r('app.media.startIcon'))
+              .width(20)
+              .height(20)
+              .margin({ left: 10 })
+          }
+          .width('100%')
+          .padding(15)
+          .backgroundColor(Color.White)
+          .borderRadius(8)
+          .margin({ top: 10 })
+          .onClick(() => this.openCityDialog('end'))
+
+          Row() {
+            Text('出发日期')
+              .width(80)
+            Text(this.selectedDate)
+              .layoutWeight(1)
+              .textAlign(TextAlign.End)
+            Image($r('app.media.startIcon'))
+              .width(20)
+              .height(20)
+              .margin({ left: 10 })
+          }
+          .width('100%')
+          .padding(15)
+          .backgroundColor(Color.White)
+          .borderRadius(8)
+          .margin({ top: 10 })
+          .onClick(() => {
+            DatePickerDialog.show({
+              start: new Date(),
+              selected: new Date(this.selectedDate),
+              onAccept: (value: DatePickerResult) => {
+                const month = value.month !== undefined ? value.month + 1 : 1
+                const day = value.day !== undefined ? value.day : 1
+                this.selectedDate = `${value.year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
+              }
+            })
+          })
+
+          Button('查询')
+            .width('100%')
+            .height(50)
+            .fontSize(18)
+            .margin({ top: 40 })
+            .onClick(() => this.queryTicket())
+        }
+        .width('90%')
+        .margin({ top: 20 })
+      }
+      .width('100%')
+      .height('100%')
+      .backgroundColor('#F5F5F5')
+
+      if (this.showCityDialog) {
+        this.cityDialogBuilder()
+      }
+    }
+    .width('100%')
+    .height('100%')
+  }
+}</code></pre>
+        </div>
+
+        <div class="file-block">
+            <div class="file-header">
+                <span class="file-name">📄 DetailPage.ets（完整代码）</span>
+                <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+            </div>
+            <pre><code class="language-typescript">import router from '@ohos.router'
+
+@Entry
+@Component
+struct DetailPage {
+  @State startCity: string = ''
+  @State endCity: string = ''
+  @State date: string = ''
+
+  aboutToAppear() {
+    const params = router.getParams() as Record<string, string>
+    this.startCity = params['startCity'] || ''
+    this.endCity = params['endCity'] || ''
+    this.date = params['date'] || ''
+  }
+
+  build() {
+    Column() {
+      Row() {
+        Text('←')
+          .fontSize(24)
+          .fontColor('#333333')
+          .onClick(() => router.back())
+        Text(`${this.startCity} → ${this.endCity}`)
+          .fontSize(18)
+          .fontWeight(FontWeight.Bold)
+          .fontColor('#333333')
+          .layoutWeight(1)
+          .textAlign(TextAlign.Center)
+        Text(this.date)
+          .fontSize(12)
+          .fontColor('#999999')
+      }
+      .width('100%')
+      .padding(16)
+      .backgroundColor('#FFEFD5')
+    }
+    .width('100%')
+    .height('100%')
+    .backgroundColor('#F5F5F5')
+  }
+}</code></pre>
+        </div>
+
+        <div class="file-block">
+            <div class="file-header">
+                <span class="file-name">📄 CityModel.ets</span>
+                <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+            </div>
+            <pre><code class="language-typescript">export class CityModel {
+  cities: string[] = []
+}</code></pre>
+        </div>
+
+        <div class="info-box" style="margin-top: 30px;">
+            <h3>💡 使用提示</h3>
+            <p>1. Index.ets保持与Step03相同（无需修改）</p>
+            <p>2. 用本页的 <strong>DetailPage.ets</strong> <strong>替换</strong> Step03的DetailPage.ets</p>
+            <p>3. CityModel.ets保持不变</p>
+            <p>4. 运行项目，详情页右上角会显示出发日期</p>
+        </div>
+    </div>
+
+    <footer>
+        <p><a href="step03.html">← Step03</a> | <a href="index.html">返回主页</a> | <a href="step05.html">Step05 →</a></p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
