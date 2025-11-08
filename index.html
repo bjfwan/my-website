@@ -4,14 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>火车票查询 - 渐进式代码教程</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <link rel="stylesheet" href="style.css">
+    <style>
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .step-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 25px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+        .step-number {
+            font-size: 48px;
+            font-weight: bold;
+            opacity: 0.3;
+            line-height: 1;
+        }
+        .step-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 10px 0;
+        }
+        .step-desc {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        .step-score {
+            background: rgba(255, 255, 255, 0.2);
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+    </style>
 </head>
 <body>
     <header>
         <div class="container">
             <h1>🚄 火车票查询系统 - 渐进式代码教程</h1>
-            <p class="subtitle">每一步都是完整可运行的代码，直接复制替换即可 ✨</p>
+            <p class="subtitle">13个步骤，从零到完整功能 ✨</p>
         </div>
     </header>
 
@@ -19,416 +63,114 @@
         <div class="info-box">
             <h3>📖 使用说明</h3>
             <ul>
-                <li><strong>Step01</strong> → 复制代码到项目 → 运行（城市选择功能）</li>
-                <li><strong>Step02</strong> → 复制代码<strong>替换</strong>Step01的文件 → 运行（城市+日期选择）</li>
-                <li><strong>Step03-13</strong> → 依次复制替换，累积完成所有功能</li>
-                <li>⭐ 标记表示本步骤新增的代码部分</li>
+                <li><strong>每个步骤</strong>都是<strong>完整可运行</strong>的代码</li>
+                <li><strong>复制代码</strong>直接替换到项目即可</li>
+                <li><strong>后面的步骤</strong>包含前面所有功能</li>
+                <li>点击卡片进入对应步骤查看代码</li>
             </ul>
         </div>
 
-        <div class="tabs">
-            <button class="tab-btn active" onclick="showStep(1)">Step01<span>10分</span></button>
-            <button class="tab-btn" onclick="showStep(2)">Step02<span>5分</span></button>
-            <button class="tab-btn" onclick="showStep(3)">Step03<span>3分</span></button>
-            <button class="tab-btn" onclick="showStep(4)">Step04<span>3分</span></button>
-            <button class="tab-btn" onclick="showStep(5)">Step05<span>5分</span></button>
-            <button class="tab-btn" onclick="showStep(6)">Step06<span>5分</span></button>
-            <button class="tab-btn" onclick="showStep(7)">Step07<span>2分</span></button>
-            <button class="tab-btn" onclick="showStep(8)">Step08<span>3分</span></button>
-            <button class="tab-btn" onclick="showStep(9)">Step09<span>4分</span></button>
-            <button class="tab-btn" onclick="showStep(10)">Step10<span>4分</span></button>
-            <button class="tab-btn" onclick="showStep(11)">Step11<span>3分</span></button>
-            <button class="tab-btn" onclick="showStep(12)">Step12<span>3分</span></button>
-            <button class="tab-btn" onclick="showStep(13)">Step13<span>5分</span></button>
+        <div class="steps-grid">
+            <a href="step01.html" class="step-card">
+                <div class="step-number">01</div>
+                <div class="step-title">城市选择功能</div>
+                <div class="step-desc">读取城市数据，显示城市选择对话框</div>
+                <div class="step-score">10分</div>
+            </a>
+
+            <a href="step02.html" class="step-card">
+                <div class="step-number">02</div>
+                <div class="step-title">日期选择功能</div>
+                <div class="step-desc">新增日期选择，默认今天</div>
+                <div class="step-score">5分</div>
+            </a>
+
+            <a href="step03.html" class="step-card">
+                <div class="step-number">03</div>
+                <div class="step-title">查询详情标题</div>
+                <div class="step-desc">新增DetailPage，显示查询标题</div>
+                <div class="step-score">3分</div>
+            </a>
+
+            <a href="step04.html" class="step-card">
+                <div class="step-number">04</div>
+                <div class="step-title">查询详情日期</div>
+                <div class="step-desc">详情页显示出发日期</div>
+                <div class="step-score">3分</div>
+            </a>
+
+            <a href="step05.html" class="step-card">
+                <div class="step-number">05</div>
+                <div class="step-title">网络请求查询</div>
+                <div class="step-desc">新增HttpUtil，调用API查询车票</div>
+                <div class="step-score">5分</div>
+            </a>
+
+            <a href="step06.html" class="step-card">
+                <div class="step-number">06</div>
+                <div class="step-title">直达车次显示</div>
+                <div class="step-desc">解析并显示车次列表</div>
+                <div class="step-score">5分</div>
+            </a>
+
+            <a href="step07.html" class="step-card">
+                <div class="step-number">07</div>
+                <div class="step-title">票价参考显示</div>
+                <div class="step-desc">显示座位类型和价格</div>
+                <div class="step-score">2分</div>
+            </a>
+
+            <a href="step08.html" class="step-card">
+                <div class="step-number">08</div>
+                <div class="step-title">余票情况显示</div>
+                <div class="step-desc">显示余票状态，不同颜色标注</div>
+                <div class="step-score">3分</div>
+            </a>
+
+            <a href="step09.html" class="step-card">
+                <div class="step-number">09</div>
+                <div class="step-title">温馨提示功能</div>
+                <div class="step-desc">显示温馨提示文字</div>
+                <div class="step-score">4分</div>
+            </a>
+
+            <a href="step10.html" class="step-card">
+                <div class="step-number">10</div>
+                <div class="step-title">通知功能</div>
+                <div class="step-desc">新增EntryAbility，启动推送通知</div>
+                <div class="step-score">4分</div>
+            </a>
+
+            <a href="step11.html" class="step-card">
+                <div class="step-number">11</div>
+                <div class="step-title">数据管理功能</div>
+                <div class="step-desc">新增PreferencesUtil，保存城市选择</div>
+                <div class="step-score">3分</div>
+            </a>
+
+            <a href="step12.html" class="step-card">
+                <div class="step-number">12</div>
+                <div class="step-title">电话服务功能</div>
+                <div class="step-desc">新增拨打电话按钮</div>
+                <div class="step-score">3分</div>
+            </a>
+
+            <a href="step13.html" class="step-card">
+                <div class="step-number">13</div>
+                <div class="step-title">Web功能（完整版）</div>
+                <div class="step-desc">新增WebPage，访问12306官网</div>
+                <div class="step-score">5分</div>
+            </a>
         </div>
 
-        <!-- Step 01 -->
-        <div id="step-1" class="step-content active">
-            <div class="step-header">
-                <h2>Step01 - 城市选择功能</h2>
-                <span class="score">10分</span>
-            </div>
-            <div class="step-desc">
-                <p><strong>功能：</strong>读取city.json获取城市数据，显示出发地/目的地选择，弹出城市列表对话框</p>
-            </div>
-
-            <div class="file-block">
-                <div class="file-header">
-                    <span class="file-name">📄 Index.ets</span>
-                    <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
-                </div>
-                <pre><code class="language-typescript">import router from '@ohos.router'
-import { resourceManager } from '@kit.LocalizationKit'
-import { util } from '@kit.ArkTS'
-import { CityModel } from '../model/CityModel'
-
-@Entry
-@Component
-struct Index {
-  @State startCity: string = '请选择'
-  @State endCity: string = '请选择'
-  @State cityList: string[] = []
-  @State showCityDialog: boolean = false
-  @State selectType: string = ''
-
-  async aboutToAppear() {
-    await this.loadCityData()
-  }
-
-  async loadCityData() {
-    try {
-      const context = getContext(this)
-      const mgr: resourceManager.ResourceManager = context.resourceManager
-      const rawFileData: Uint8Array = await mgr.getRawFileContent('city.json')
-      const textDecoder = util.TextDecoder.create('utf-8')
-      const jsonStr: string = textDecoder.decodeToString(rawFileData)
-      const cityModel: CityModel = JSON.parse(jsonStr)
-      this.cityList = cityModel.cities
-    } catch (error) {
-      console.error('读取城市数据失败:', error)
-    }
-  }
-
-  openCityDialog(type: string) {
-    this.selectType = type
-    this.showCityDialog = true
-  }
-
-  selectCity(city: string) {
-    if (this.selectType === 'start') {
-      this.startCity = city
-    } else {
-      this.endCity = city
-    }
-    this.showCityDialog = false
-  }
-
-  @Builder
-  cityDialogBuilder() {
-    Column() {
-      Text('选择城市')
-        .fontSize(20)
-        .fontWeight(FontWeight.Bold)
-        .padding(15)
-
-      List() {
-        ForEach(this.cityList, (city: string) => {
-          ListItem() {
-            Text(city)
-              .width('100%')
-              .padding(15)
-              .onClick(() => this.selectCity(city))
-          }
-        })
-      }
-      .height('80%')
-
-      Button('取消')
-        .width('90%')
-        .margin({ top: 10, bottom: 10 })
-        .onClick(() => this.showCityDialog = false)
-    }
-    .width('100%')
-    .height('100%')
-    .backgroundColor(Color.White)
-  }
-
-  build() {
-    Stack() {
-      Column() {
-        Text('火车票查询')
-          .fontSize(24)
-          .fontWeight(FontWeight.Bold)
-          .margin({ top: 20, bottom: 30 })
-
-        Column() {
-          Row() {
-            Text('出发地')
-              .width(80)
-            Text(this.startCity)
-              .layoutWeight(1)
-              .textAlign(TextAlign.End)
-            Image($r('app.media.startIcon'))
-              .width(20)
-              .height(20)
-              .margin({ left: 10 })
-          }
-          .width('100%')
-          .padding(15)
-          .backgroundColor(Color.White)
-          .borderRadius(8)
-          .onClick(() => this.openCityDialog('start'))
-
-          Row() {
-            Text('目的地')
-              .width(80)
-            Text(this.endCity)
-              .layoutWeight(1)
-              .textAlign(TextAlign.End)
-            Image($r('app.media.startIcon'))
-              .width(20)
-              .height(20)
-              .margin({ left: 10 })
-          }
-          .width('100%')
-          .padding(15)
-          .backgroundColor(Color.White)
-          .borderRadius(8)
-          .margin({ top: 10 })
-          .onClick(() => this.openCityDialog('end'))
-        }
-        .width('90%')
-        .margin({ top: 20 })
-      }
-      .width('100%')
-      .height('100%')
-      .backgroundColor('#F5F5F5')
-
-      if (this.showCityDialog) {
-        this.cityDialogBuilder()
-      }
-    }
-    .width('100%')
-    .height('100%')
-  }
-}</code></pre>
-            </div>
-
-            <div class="file-block">
-                <div class="file-header">
-                    <span class="file-name">📄 CityModel.ets</span>
-                    <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
-                </div>
-                <pre><code class="language-typescript">export class CityModel {
-  cities: string[] = []
-}</code></pre>
-            </div>
+        <div class="info-box" style="margin-top: 40px; text-align: center;">
+            <h3>🎯 总分：55分</h3>
+            <p>完成所有13个步骤，实现火车票查询系统全部功能！</p>
         </div>
-
-        <!-- Step 02 -->
-        <div id="step-2" class="step-content">
-            <div class="step-header">
-                <h2>Step02 - 日期选择功能</h2>
-                <span class="score">5分</span>
-            </div>
-            <div class="step-desc">
-                <p><strong>新增：</strong>日期选择功能，默认显示今天日期</p>
-                <p><strong>包含：</strong>Step01所有功能 + 日期选择</p>
-            </div>
-
-            <div class="file-block">
-                <div class="file-header">
-                    <span class="file-name">📄 Index.ets（完整代码，⭐标记新增）</span>
-                    <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
-                </div>
-                <pre><code class="language-typescript">import router from '@ohos.router'
-import { resourceManager } from '@kit.LocalizationKit'
-import { util } from '@kit.ArkTS'
-import { CityModel } from '../model/CityModel'
-
-@Entry
-@Component
-struct Index {
-  @State startCity: string = '请选择'
-  @State endCity: string = '请选择'
-  @State selectedDate: string = this.getTodayDate()  // ⭐ 新增
-  @State cityList: string[] = []
-  @State showCityDialog: boolean = false
-  @State selectType: string = ''
-
-  async aboutToAppear() {
-    await this.loadCityData()
-  }
-
-  // ⭐ 新增
-  getTodayDate(): string {
-    const date = new Date()
-    const year = date.getFullYear()
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const day = date.getDate().toString().padStart(2, '0')
-    return \`\${year}-\${month}-\${day}\`
-  }
-
-  async loadCityData() {
-    try {
-      const context = getContext(this)
-      const mgr: resourceManager.ResourceManager = context.resourceManager
-      const rawFileData: Uint8Array = await mgr.getRawFileContent('city.json')
-      const textDecoder = util.TextDecoder.create('utf-8')
-      const jsonStr: string = textDecoder.decodeToString(rawFileData)
-      const cityModel: CityModel = JSON.parse(jsonStr)
-      this.cityList = cityModel.cities
-    } catch (error) {
-      console.error('读取城市数据失败:', error)
-    }
-  }
-
-  openCityDialog(type: string) {
-    this.selectType = type
-    this.showCityDialog = true
-  }
-
-  selectCity(city: string) {
-    if (this.selectType === 'start') {
-      this.startCity = city
-    } else {
-      this.endCity = city
-    }
-    this.showCityDialog = false
-  }
-
-  @Builder
-  cityDialogBuilder() {
-    Column() {
-      Text('选择城市')
-        .fontSize(20)
-        .fontWeight(FontWeight.Bold)
-        .padding(15)
-
-      List() {
-        ForEach(this.cityList, (city: string) => {
-          ListItem() {
-            Text(city)
-              .width('100%')
-              .padding(15)
-              .onClick(() => this.selectCity(city))
-          }
-        })
-      }
-      .height('80%')
-
-      Button('取消')
-        .width('90%')
-        .margin({ top: 10, bottom: 10 })
-        .onClick(() => this.showCityDialog = false)
-    }
-    .width('100%')
-    .height('100%')
-    .backgroundColor(Color.White)
-  }
-
-  build() {
-    Stack() {
-      Column() {
-        Text('火车票查询')
-          .fontSize(24)
-          .fontWeight(FontWeight.Bold)
-          .margin({ top: 20, bottom: 30 })
-
-        Column() {
-          Row() {
-            Text('出发地')
-              .width(80)
-            Text(this.startCity)
-              .layoutWeight(1)
-              .textAlign(TextAlign.End)
-            Image($r('app.media.startIcon'))
-              .width(20)
-              .height(20)
-              .margin({ left: 10 })
-          }
-          .width('100%')
-          .padding(15)
-          .backgroundColor(Color.White)
-          .borderRadius(8)
-          .onClick(() => this.openCityDialog('start'))
-
-          Row() {
-            Text('目的地')
-              .width(80)
-            Text(this.endCity)
-              .layoutWeight(1)
-              .textAlign(TextAlign.End)
-            Image($r('app.media.startIcon'))
-              .width(20)
-              .height(20)
-              .margin({ left: 10 })
-          }
-          .width('100%')
-          .padding(15)
-          .backgroundColor(Color.White)
-          .borderRadius(8)
-          .margin({ top: 10 })
-          .onClick(() => this.openCityDialog('end'))
-
-          // ⭐⭐⭐ 新增：日期选择 ⭐⭐⭐
-          Row() {
-            Text('出发日期')
-              .width(80)
-            Text(this.selectedDate)
-              .layoutWeight(1)
-              .textAlign(TextAlign.End)
-            Image($r('app.media.startIcon'))
-              .width(20)
-              .height(20)
-              .margin({ left: 10 })
-          }
-          .width('100%')
-          .padding(15)
-          .backgroundColor(Color.White)
-          .borderRadius(8)
-          .margin({ top: 10 })
-          .onClick(() => {
-            DatePickerDialog.show({
-              start: new Date(),
-              selected: new Date(this.selectedDate),
-              onAccept: (value: DatePickerResult) => {
-                const month = value.month !== undefined ? value.month + 1 : 1
-                const day = value.day !== undefined ? value.day : 1
-                this.selectedDate = \`\${value.year}-\${month.toString().padStart(2, '0')}-\${day.toString().padStart(2, '0')}\`
-              }
-            })
-          })
-          // ⭐⭐⭐ 新增结束 ⭐⭐⭐
-        }
-        .width('90%')
-        .margin({ top: 20 })
-      }
-      .width('100%')
-      .height('100%')
-      .backgroundColor('#F5F5F5')
-
-      if (this.showCityDialog) {
-        this.cityDialogBuilder()
-      }
-    }
-    .width('100%')
-    .height('100%')
-  }
-}</code></pre>
-            </div>
-
-            <div class="file-block">
-                <div class="file-header">
-                    <span class="file-name">📄 CityModel.ets</span>
-                    <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
-                </div>
-                <pre><code class="language-typescript">export class CityModel {
-  cities: string[] = []
-}</code></pre>
-            </div>
-        </div>
-
-        <!-- Step 03-13 待补充 -->
-        <div id="step-3" class="step-content"><div class="info-box" style="text-align: center; padding: 60px;">🚧 Step03 代码生成中...</div></div>
-        <div id="step-4" class="step-content"><div class="info-box" style="text-align: center; padding: 60px;">🚧 Step04 代码生成中...</div></div>
-        <div id="step-5" class="step-content"><div class="info-box" style="text-align: center; padding: 60px;">🚧 Step05 代码生成中...</div></div>
-        <div id="step-6" class="step-content"><div class="info-box" style="text-align: center; padding: 60px;">🚧 Step06 代码生成中...</div></div>
-        <div id="step-7" class="step-content"><div class="info-box" style="text-align: center; padding: 60px;">🚧 Step07 代码生成中...</div></div>
-        <div id="step-8" class="step-content"><div class="info-box" style="text-align: center; padding: 60px;">🚧 Step08 代码生成中...</div></div>
-        <div id="step-9" class="step-content"><div class="info-box" style="text-align: center; padding: 60px;">🚧 Step09 代码生成中...</div></div>
-        <div id="step-10" class="step-content"><div class="info-box" style="text-align: center; padding: 60px;">🚧 Step10 代码生成中...</div></div>
-        <div id="step-11" class="step-content"><div class="info-box" style="text-align: center; padding: 60px;">🚧 Step11 代码生成中...</div></div>
-        <div id="step-12" class="step-content"><div class="info-box" style="text-align: center; padding: 60px;">🚧 Step12 代码生成中...</div></div>
-        <div id="step-13" class="step-content"><div class="info-box" style="text-align: center; padding: 60px;">🚧 Step13 代码生成中...</div></div>
     </div>
 
     <footer>
         <p>© 2024 HarmonyOS 火车票查询 - 渐进式代码教程</p>
     </footer>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
-    <script src="script.js"></script>
 </body>
 </html>
