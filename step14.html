@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Step 14 - 配置文件说明</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="script.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🚄 Step 14 - 配置文件说明</h1>
+            <p class="subtitle">必要的项目配置文件</p>
+            <a href="index.html" class="back-btn">← 返回首页</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="info-box" style="background: #fff3cd; border-left: 4px solid #ffc107;">
+            <h3>⚠️ 重要提示</h3>
+            <p><strong>这些配置文件不能为空！</strong>必须包含必要的配置信息，否则项目无法运行。</p>
+            <ul>
+                <li>❌ 不要创建空白文件</li>
+                <li>✅ 直接从基准项目复制完整文件</li>
+                <li>✅ 仅需修改少量配置（如IAM Token）</li>
+            </ul>
+        </div>
+
+        <div class="file-block">
+            <div class="file-header">
+                <span>📄 build-profile.json5（项目根目录）</span>
+                <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+            </div>
+            <pre><code class="language-json">{
+  "app": {
+    "signingConfigs": [],
+    "products": [
+      {
+        "name": "default",
+        "signingConfig": "default",
+        "targetSdkVersion": "5.1.0(18)",
+        "compatibleSdkVersion": "5.1.0(18)",
+        "runtimeOS": "HarmonyOS",
+        "buildOption": {
+          "strictMode": {
+            "caseSensitiveCheck": true,
+            "useNormalizedOHMUrl": true
+          }
+        }
+      }
+    ],
+    "buildModeSet": [
+      {
+        "name": "debug",
+      },
+      {
+        "name": "release"
+      }
+    ]
+  },
+  "modules": [
+    {
+      "name": "entry",
+      "srcPath": "./entry",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": ["default"]
+        }
+      ]
+    }
+  ]
+}
+</code></pre>
+            <div class="info-box">
+                <p><strong>关键配置：</strong></p>
+                <ul>
+                    <li><code>targetSdkVersion</code>: 目标SDK版本</li>
+                    <li><code>compatibleSdkVersion</code>: 兼容SDK版本</li>
+                    <li><code>modules</code>: 模块声明</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="file-block">
+            <div class="file-header">
+                <span>📄 entry/build-profile.json5</span>
+                <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+            </div>
+            <pre><code class="language-json">{
+  "apiType": "stageMode",
+  "buildOption": {
+    "resOptions": {
+      "copyCodeResource": {
+        "enable": false
+      }
+    }
+  },
+  "buildOptionSet": [
+    {
+      "name": "release",
+      "arkOptions": {
+        "obfuscation": {
+          "ruleOptions": {
+            "enable": false,
+            "files": ["./obfuscation-rules.txt"]
+          }
+        }
+      }
+    },
+  ],
+  "targets": [
+    {
+      "name": "default"
+    },
+    {
+      "name": "ohosTest"
+    }
+  ]
+}
+</code></pre>
+            <div class="info-box">
+                <p><strong>关键配置：</strong></p>
+                <ul>
+                    <li><code>apiType</code>: 必须为"stageMode"</li>
+                    <li><code>targets</code>: 构建目标配置</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="file-block">
+            <div class="file-header">
+                <span>📄 entry/src/main/module.json5（最重要）</span>
+                <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+            </div>
+            <pre><code class="language-json">{
+  "module": {
+    "name": "entry",
+    "type": "entry",
+    "description": "$string:module_desc",
+    "mainElement": "EntryAbility",
+    "deviceTypes": ["phone"],
+    "deliveryWithInstall": true,
+    "installationFree": false,
+    "pages": "$profile:main_pages",
+    "requestPermissions": [
+      {
+        "name": "ohos.permission.INTERNET"
+      },
+      {
+        "name": "ohos.permission.PLACE_CALL",
+        "usedScene": {
+          "abilities": ["EntryAbility"],
+          "when": "inuse"
+        }
+      },
+      {
+        "name": "ohos.permission.ANSWER_CALL",
+        "reason": "$string:reason_make_call",
+        "usedScene": {
+          "abilities": ["EntryAbility"],
+          "when": "inuse"
+        }
+      }
+    ],
+    "abilities": [
+      {
+        "name": "EntryAbility",
+        "srcEntry": "./ets/entryability/EntryAbility.ets",
+        "description": "$string:EntryAbility_desc",
+        "icon": "$media:layered_image",
+        "label": "$string:EntryAbility_label",
+        "startWindowIcon": "$media:startIcon",
+        "startWindowBackground": "$color:start_window_background",
+        "exported": true,
+        "skills": [
+          {
+            "entities": ["entity.system.home"],
+            "actions": ["ohos.want.action.home"]
+          }
+        ]
+      }
+    ],
+    "extensionAbilities": [
+      {
+        "name": "EntryBackupAbility",
+        "srcEntry": "./ets/entrybackupability/EntryBackupAbility.ets",
+        "type": "backup",
+        "exported": false,
+        "metadata": [
+          {
+            "name": "ohos.extension.backup",
+            "resource": "$profile:backup_config"
+          }
+        ],
+      }
+    ]
+  }
+}
+</code></pre>
+            <div class="info-box" style="background: #f8d7da; border-left: 4px solid #dc3545;">
+                <h3>🚨 必须保留的关键配置</h3>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                    <tr style="background: #fff; border-bottom: 1px solid #ddd;">
+                        <th style="padding: 10px; text-align: left;">配置项</th>
+                        <th style="padding: 10px; text-align: left;">作用</th>
+                        <th style="padding: 10px; text-align: left;">缺少后果</th>
+                    </tr>
+                    <tr style="background: #fff; border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px;"><code>mainElement</code></td>
+                        <td style="padding: 10px;">应用入口</td>
+                        <td style="padding: 10px;">❌ 应用无法启动</td>
+                    </tr>
+                    <tr style="background: #fff; border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px;"><code>abilities</code></td>
+                        <td style="padding: 10px;">Ability配置</td>
+                        <td style="padding: 10px;">❌ 应用无法运行</td>
+                    </tr>
+                    <tr style="background: #fff; border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px;"><code>ohos.permission.INTERNET</code></td>
+                        <td style="padding: 10px;">网络权限</td>
+                        <td style="padding: 10px;">❌ 无法查询车票</td>
+                    </tr>
+                    <tr style="background: #fff; border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px;"><code>ohos.permission.PLACE_CALL</code></td>
+                        <td style="padding: 10px;">拨号权限</td>
+                        <td style="padding: 10px;">❌ 电话功能不可用</td>
+                    </tr>
+                    <tr style="background: #fff;">
+                        <td style="padding: 10px;"><code>pages</code></td>
+                        <td style="padding: 10px;">页面路由</td>
+                        <td style="padding: 10px;">❌ 页面无法跳转</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="info-box" style="background: #d4edda; border-left: 4px solid #28a745;">
+            <h3>✅ 最佳实践</h3>
+            <ol>
+                <li><strong>直接复制：</strong>从基准项目直接复制这三个配置文件</li>
+                <li><strong>最小修改：</strong>只需修改<code>HttpUtil.ets</code>中的IAM Token</li>
+                <li><strong>SDK版本：</strong>如果编译报错，检查SDK版本是否匹配</li>
+                <li><strong>资源文件：</strong>确保<code>city.json</code>和图片资源已放置</li>
+            </ol>
+        </div>
+
+        <div class="info-box">
+            <h3>📦 完整项目结构</h3>
+            <pre style="background: #f8f9fa; padding: 15px; border-radius: 4px; overflow-x: auto;"><code>TestTrain/
+├── AppScope/
+│   └── app.json5
+├── entry/
+│   ├── build-profile.json5          ← 必需
+│   ├── src/
+│   │   └── main/
+│   │       ├── ets/
+│   │       │   ├── entryability/
+│   │       │   │   └── EntryAbility.ets
+│   │       │   ├── model/
+│   │       │   │   └── CityModel.ets
+│   │       │   ├── pages/
+│   │       │   │   ├── Index.ets
+│   │       │   │   ├── DetailPage.ets
+│   │       │   │   └── WebPage.ets
+│   │       │   └── utils/
+│   │       │       ├── HttpUtil.ets
+│   │       │       └── PreferencesUtil.ets
+│   │       ├── module.json5         ← 必需
+│   │       └── resources/
+│   │           ├── base/media/      ← 放置图片
+│   │           └── rawfile/
+│   │               └── city.json    ← 必需
+├── build-profile.json5              ← 必需
+├── hvigorfile.ts
+└── oh-package.json5
+</code></pre>
+        </div>
+
+        <div class="summary-box" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border-radius: 8px; padding: 30px; margin-top: 40px; text-align: center;">
+            <h3 style="font-size: 24px; margin-bottom: 10px;">🎯 配置完成后即可运行</h3>
+            <p style="font-size: 16px; opacity: 0.95;">配置文件是项目的基础，正确配置后就能运行完整的火车票查询系统！</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2024 HarmonyOS 火车票查询 - 配置文件说明</p>
+    </footer>
+</body>
+</html>
