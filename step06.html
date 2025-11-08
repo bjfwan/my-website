@@ -3,36 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Step06 - 直达车次显示</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <title>Step 06 - 直达车次显示</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="script.js"></script>
 </head>
 <body>
     <header>
         <div class="container">
-            <h1>🚄 Step06 - 直达车次显示</h1>
-            <p class="subtitle"><a href="step05.html" style="color: #58a6ff;">← Step05</a> | <a href="index.html" style="color: #58a6ff;">主页</a> | <a href="step07.html" style="color: #58a6ff;">Step07 →</a></p>
+            <h1>🚄 Step 06 - 直达车次显示</h1>
+            <p class="subtitle">解析并显示车次列表 (5分)</p>
+            <a href="index.html" class="back-btn">← 返回首页</a>
         </div>
     </header>
 
     <div class="container">
         <div class="info-box">
             <h3>📋 功能说明</h3>
+            <p>在Step01~05基础上新增直达车次显示功能：</p>
             <ul>
-                <li>✅ 包含Step01-05所有功能</li>
-                <li>✅ 解析网络返回的车次数据</li>
-                <li>✅ 显示车次列表（车次号、时间、站点）</li>
-                <li>✅ 显示"直达"标识</li>
-                <li>🎯 分值：5分</li>
+                <li>✅ Step01~05的所有功能</li>
+                <li>🆕 定义TrainInfo和SeatInfo数据接口</li>
+                <li>🆕 解析SSE格式的查询结果</li>
+                <li>🆕 显示车次号、时间、站点信息</li>
             </ul>
         </div>
 
-        <div class="file-block">
-            <div class="file-header">
-                <span class="file-name">📄 Index.ets（与Step05相同）</span>
-                <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showStep(1)">
+                Step 06
+                <span>含车次显示</span>
+            </button>
+        </div>
+
+        <div id="step-1" class="step-content active">
+            <div class="file-block">
+                <div class="file-header">
+                    <span>📄 model/CityModel.ets</span>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+                </div>
+                <pre><code class="language-typescript">export class CityModel {
+  cities: string[] = []
+}
+</code></pre>
             </div>
-            <pre><code class="language-typescript">import router from '@ohos.router'
+
+            <div class="file-block">
+                <div class="file-header">
+                    <span>📄 pages/Index.ets</span>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+                </div>
+                <pre><code class="language-typescript">import router from '@ohos.router'
 import { resourceManager } from '@kit.LocalizationKit'
 import { util } from '@kit.ArkTS'
 import { CityModel } from '../model/CityModel'
@@ -56,7 +78,7 @@ struct Index {
     const year = date.getFullYear()
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const day = date.getDate().toString().padStart(2, '0')
-    return \`\${year}-\${month}-\${day}\`
+    return `${year}-${month}-${day}`
   }
 
   async loadCityData() {
@@ -198,20 +220,20 @@ struct Index {
               onAccept: (value: DatePickerResult) => {
                 const month = value.month !== undefined ? value.month + 1 : 1
                 const day = value.day !== undefined ? value.day : 1
-                this.selectedDate = \`\${value.year}-\${month.toString().padStart(2, '0')}-\${day.toString().padStart(2, '0')}\`
+                this.selectedDate = `${value.year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
               }
             })
           })
-
-          Button('查询')
-            .width('100%')
-            .height(50)
-            .fontSize(18)
-            .margin({ top: 40 })
-            .onClick(() => this.queryTicket())
         }
         .width('90%')
         .margin({ top: 20 })
+
+        Button('查询')
+          .width('90%')
+          .height(50)
+          .fontSize(18)
+          .margin({ top: 40 })
+          .onClick(() => this.queryTicket())
       }
       .width('100%')
       .height('100%')
@@ -224,15 +246,78 @@ struct Index {
     .width('100%')
     .height('100%')
   }
-}</code></pre>
-        </div>
-
-        <div class="file-block">
-            <div class="file-header">
-                <span class="file-name">📄 DetailPage.ets（完整代码-显示车次列表）</span>
-                <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+}
+</code></pre>
             </div>
-            <pre><code class="language-typescript">import router from '@ohos.router'
+
+            <div class="file-block">
+                <div class="file-header">
+                    <span>📄 utils/HttpUtil.ets</span>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+                </div>
+                <pre><code class="language-typescript">import { http } from '@kit.NetworkKit'
+
+interface RequestBody {
+  query: string
+}
+
+class HttpUtilClass {
+  private readonly BASE_URL: string = 'https://123.249.99.67/v1/63a98ecdb3b6488ea881cf4f85b3db7a/agents/4e84b914-a787-4674-99b1-6310830bcb9f'
+  private readonly CONVERSATION_ID: string = '38a2d783-b5b6-4e2e-94ae-d766f0babf0a'
+  private readonly VERSION: string = '1762149260703'
+  private readonly IAM_TOKEN: string = 'YOUR_IAM_TOKEN_HERE'
+
+  async queryTrainTicket(startCity: string, endCity: string, date: string): Promise<string> {
+    const url = `${this.BASE_URL}/conversations/${this.CONVERSATION_ID}?version=${this.VERSION}`
+    const requestBody: RequestBody = {
+      query: `查询${date}从${startCity}到${endCity}的车票。要求：必须以JSON数组格式返回，每个车次包含trainNo(车次号)、departStation(出发站)、departTime(出发时间HH:MM)、arriveStation(到达站)、arriveTime(到达时间HH:MM)、seats数组(包含seatType座位类型、price价格、status状态)。只返回JSON数据，不要其他文字说明。`
+    }
+
+    const httpRequest = http.createHttp()
+    
+    try {
+      httpRequest.on('dataReceive', () => {})
+      
+      const requestOptions: http.HttpRequestOptions = {
+        method: http.RequestMethod.POST,
+        header: {
+          'Content-Type': 'application/json',
+          'X-Auth-Token': this.IAM_TOKEN
+        },
+        extraData: JSON.stringify(requestBody),
+        expectDataType: http.HttpDataType.STRING,
+        connectTimeout: 60000,
+        readTimeout: 60000,
+        usingProtocol: http.HttpProtocol.HTTP1_1,
+        remoteValidation: 'skip'
+      }
+      
+      const response: http.HttpResponse = await httpRequest.request(url, requestOptions)
+
+      if (response.responseCode === 200) {
+        return response.result as string
+      } else {
+        return `HTTP错误: ${response.responseCode}`
+      }
+    } catch (error) {
+      const errorObj = error as Record<string, Object>
+      return `网络请求失败: ${errorObj.message || '未知错误'}`
+    } finally {
+      httpRequest.destroy()
+    }
+  }
+}
+
+export const HttpUtil = new HttpUtilClass()
+</code></pre>
+            </div>
+
+            <div class="file-block">
+                <div class="file-header">
+                    <span>📄 pages/DetailPage.ets</span>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+                </div>
+                <pre><code class="language-typescript">import router from '@ohos.router'
 import { HttpUtil } from '../utils/HttpUtil'
 
 interface SeatInfo {
@@ -270,8 +355,20 @@ struct DetailPage {
   async queryTrainTicket() {
     this.isLoading = true
     try {
+      console.log('开始查询:', this.startCity, this.endCity, this.date)
       const result = await HttpUtil.queryTrainTicket(this.startCity, this.endCity, this.date)
-      this.parseTrains(result)
+      console.log('HTTP响应:', result)
+      
+      if (result.includes('HTTP错误') || result.includes('网络请求失败')) {
+        console.log('请求失败:', result)
+        this.trainList = []
+        this.isLoading = false
+        return
+      }
+      const fullMessage = this.extractSSEContent(result)
+      console.log('提取的内容:', fullMessage)
+      this.parseTrains(fullMessage)
+      console.log('解析后的列车数量:', this.trainList.length)
     } catch (error) {
       console.error('查询异常:', error)
       this.trainList = []
@@ -279,18 +376,52 @@ struct DetailPage {
     this.isLoading = false
   }
 
+  extractSSEContent(sseData: string): string {
+    const lines: string[] = sseData.split('\n')
+    let fullMessage: string = ''
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim()
+      if (line.startsWith('data:')) {
+        const jsonStr: string = line.substring(5).trim()
+        if (jsonStr && jsonStr !== '[DONE]') {
+          try {
+            const jsonData = JSON.parse(jsonStr) as Record<string, Object>
+            if (jsonData.event === 'message' && jsonData.content) {
+              fullMessage += String(jsonData.content)
+            }
+          } catch (e) {
+          }
+        }
+      }
+    }
+    
+    return fullMessage
+  }
+
   parseTrains(message: string): void {
     try {
+      console.log('开始解析消息，长度:', message?.length)
+      if (!message || message.trim().length === 0) {
+        console.log('消息为空')
+        this.trainList = []
+        return
+      }
+      
       let jsonStr = message.trim()
-      const jsonMatch = jsonStr.match(/\\[\\s*\\{[\\s\\S]*\\}\\s*\\]/)
+      const jsonMatch = jsonStr.match(/\[\s*\{[\s\S]*\}\s*\]/)
       if (jsonMatch) {
+        console.log('找到JSON数组')
         jsonStr = jsonMatch[0]
       }
       
       const trainData: TrainInfo[] = JSON.parse(jsonStr) as TrainInfo[]
+      console.log('JSON解析成功，车次数:', trainData.length)
+      
       this.trainList = trainData.filter(train => 
         train.trainNo && train.departTime && train.arriveTime
       )
+      console.log('过滤后的车次数:', this.trainList.length)
     } catch (error) {
       console.error('解析失败:', error)
       this.trainList = []
@@ -318,6 +449,7 @@ struct DetailPage {
           Text(train.departStation || this.startCity)
             .fontSize(14)
             .fontColor('#666666')
+            .maxLines(1)
         }
         .layoutWeight(1)
 
@@ -343,6 +475,7 @@ struct DetailPage {
           Text(train.arriveStation || this.endCity)
             .fontSize(14)
             .fontColor('#666666')
+            .maxLines(1)
         }
         .layoutWeight(1)
         .alignItems(HorizontalAlign.End)
@@ -362,7 +495,7 @@ struct DetailPage {
           .fontSize(24)
           .fontColor('#333333')
           .onClick(() => router.back())
-        Text(\`\${this.startCity} → \${this.endCity}\`)
+        Text(`${this.startCity} → ${this.endCity}`)
           .fontSize(18)
           .fontWeight(FontWeight.Bold)
           .fontColor('#333333')
@@ -417,95 +550,14 @@ struct DetailPage {
     .height('100%')
     .backgroundColor('#F5F5F5')
   }
-}</code></pre>
-        </div>
-
-        <div class="file-block">
-            <div class="file-header">
-                <span class="file-name">📄 HttpUtil.ets（与Step05相同）</span>
-                <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
-            </div>
-            <pre><code class="language-typescript">import { http } from '@kit.NetworkKit'
-
-interface RequestBody {
-  query: string
 }
-
-class HttpUtilClass {
-  private readonly BASE_URL: string = 'https://YOUR_API_URL'
-  private readonly CONVERSATION_ID: string = 'YOUR_CONVERSATION_ID'
-  private readonly VERSION: string = 'YOUR_VERSION'
-  private readonly IAM_TOKEN: string = 'YOUR_IAM_TOKEN'
-
-  async queryTrainTicket(startCity: string, endCity: string, date: string): Promise<string> {
-    const url = \`\${this.BASE_URL}/conversations/\${this.CONVERSATION_ID}?version=\${this.VERSION}\`
-    const requestBody: RequestBody = {
-      query: \`查询\${date}从\${startCity}到\${endCity}的车票。要求：必须以JSON数组格式返回，每个车次包含trainNo(车次号)、departStation(出发站)、departTime(出发时间HH:MM)、arriveStation(到达站)、arriveTime(到达时间HH:MM)、seats数组(包含seatType座位类型、price价格、status状态)。只返回JSON数据，不要其他文字说明。\`
-    }
-
-    const httpRequest = http.createHttp()
-    
-    try {
-      httpRequest.on('dataReceive', () => {})
-      
-      const requestOptions: http.HttpRequestOptions = {
-        method: http.RequestMethod.POST,
-        header: {
-          'Content-Type': 'application/json',
-          'X-Auth-Token': this.IAM_TOKEN
-        },
-        extraData: JSON.stringify(requestBody),
-        expectDataType: http.HttpDataType.STRING,
-        connectTimeout: 60000,
-        readTimeout: 60000,
-        usingProtocol: http.HttpProtocol.HTTP1_1,
-        remoteValidation: 'skip'
-      }
-      
-      const response: http.HttpResponse = await httpRequest.request(url, requestOptions)
-
-      if (response.responseCode === 200) {
-        return response.result as string
-      } else {
-        return \`HTTP错误: \${response.responseCode}\`
-      }
-    } catch (error) {
-      const errorObj = error as Record<string, Object>
-      return \`网络请求失败: \${errorObj.message || '未知错误'}\`
-    } finally {
-      httpRequest.destroy()
-    }
-  }
-}
-
-export const HttpUtil = new HttpUtilClass()</code></pre>
-        </div>
-
-        <div class="file-block">
-            <div class="file-header">
-                <span class="file-name">📄 CityModel.ets</span>
-                <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+</code></pre>
             </div>
-            <pre><code class="language-typescript">export class CityModel {
-  cities: string[] = []
-}</code></pre>
-        </div>
-
-        <div class="info-box" style="margin-top: 30px;">
-            <h3>💡 使用提示</h3>
-            <p>1. Index.ets保持与Step05相同</p>
-            <p>2. 用本页的 <strong>DetailPage.ets</strong> 替换Step05的DetailPage.ets</p>
-            <p>3. HttpUtil.ets保持不变（确保已配置好API参数）</p>
-            <p>4. 运行项目查看车次列表展示效果</p>
         </div>
     </div>
 
     <footer>
-        <p><a href="step05.html">← Step05</a> | <a href="index.html">返回主页</a> | <a href="step07.html">Step07 →</a></p>
+        <p>© 2024 HarmonyOS 火车票查询 - 渐进式代码教程</p>
     </footer>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
-    <script src="script.js"></script>
 </body>
 </html>

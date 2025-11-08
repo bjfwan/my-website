@@ -3,34 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Step04 - 查询详情日期</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <title>Step 04 - 查询详情日期</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="script.js"></script>
 </head>
 <body>
     <header>
         <div class="container">
-            <h1>🚄 Step04 - 查询详情日期</h1>
-            <p class="subtitle"><a href="step03.html" style="color: #58a6ff;">← Step03</a> | <a href="index.html" style="color: #58a6ff;">主页</a> | <a href="step05.html" style="color: #58a6ff;">Step05 →</a></p>
+            <h1>🚄 Step 04 - 查询详情日期</h1>
+            <p class="subtitle">详情页显示出发日期 (3分)</p>
+            <a href="index.html" class="back-btn">← 返回首页</a>
         </div>
     </header>
 
     <div class="container">
         <div class="info-box">
             <h3>📋 功能说明</h3>
+            <p>在Step01~03基础上完善查询详情页日期功能：</p>
             <ul>
-                <li>✅ 包含Step01-03所有功能</li>
-                <li>✅ 详情页显示出发日期</li>
-                <li>🎯 分值：3分</li>
+                <li>✅ Step01的城市选择功能</li>
+                <li>✅ Step02的日期选择功能</li>
+                <li>✅ Step03的查询详情标题</li>
+                <li>🆕 DetailPage显示日期数据</li>
             </ul>
         </div>
 
-        <div class="file-block">
-            <div class="file-header">
-                <span class="file-name">📄 Index.ets（与Step03相同）</span>
-                <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showStep(1)">
+                Step 04
+                <span>含日期显示</span>
+            </button>
+        </div>
+
+        <div id="step-1" class="step-content active">
+            <div class="file-block">
+                <div class="file-header">
+                    <span>📄 model/CityModel.ets</span>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+                </div>
+                <pre><code class="language-typescript">export class CityModel {
+  cities: string[] = []
+}
+</code></pre>
             </div>
-            <pre><code class="language-typescript">import router from '@ohos.router'
+
+            <div class="file-block">
+                <div class="file-header">
+                    <span>📄 pages/Index.ets</span>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+                </div>
+                <pre><code class="language-typescript">import router from '@ohos.router'
 import { resourceManager } from '@kit.LocalizationKit'
 import { util } from '@kit.ArkTS'
 import { CityModel } from '../model/CityModel'
@@ -200,16 +224,16 @@ struct Index {
               }
             })
           })
-
-          Button('查询')
-            .width('100%')
-            .height(50)
-            .fontSize(18)
-            .margin({ top: 40 })
-            .onClick(() => this.queryTicket())
         }
         .width('90%')
         .margin({ top: 20 })
+
+        Button('查询')
+          .width('90%')
+          .height(50)
+          .fontSize(18)
+          .margin({ top: 40 })
+          .onClick(() => this.queryTicket())
       }
       .width('100%')
       .height('100%')
@@ -222,15 +246,16 @@ struct Index {
     .width('100%')
     .height('100%')
   }
-}</code></pre>
-        </div>
-
-        <div class="file-block">
-            <div class="file-header">
-                <span class="file-name">📄 DetailPage.ets（完整代码）</span>
-                <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+}
+</code></pre>
             </div>
-            <pre><code class="language-typescript">import router from '@ohos.router'
+
+            <div class="file-block">
+                <div class="file-header">
+                    <span>📄 pages/DetailPage.ets</span>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+                </div>
+                <pre><code class="language-typescript">import router from '@ohos.router'
 
 @Entry
 @Component
@@ -271,34 +296,14 @@ struct DetailPage {
     .height('100%')
     .backgroundColor('#F5F5F5')
   }
-}</code></pre>
-        </div>
-
-        <div class="file-block">
-            <div class="file-header">
-                <span class="file-name">📄 CityModel.ets</span>
-                <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+}
+</code></pre>
             </div>
-            <pre><code class="language-typescript">export class CityModel {
-  cities: string[] = []
-}</code></pre>
-        </div>
-
-        <div class="info-box" style="margin-top: 30px;">
-            <h3>💡 使用提示</h3>
-            <p>1. Index.ets保持与Step03相同（无需修改）</p>
-            <p>2. 用本页的 <strong>DetailPage.ets</strong> <strong>替换</strong> Step03的DetailPage.ets</p>
-            <p>3. CityModel.ets保持不变</p>
-            <p>4. 运行项目，详情页右上角会显示出发日期</p>
         </div>
     </div>
 
     <footer>
-        <p><a href="step03.html">← Step03</a> | <a href="index.html">返回主页</a> | <a href="step05.html">Step05 →</a></p>
+        <p>© 2024 HarmonyOS 火车票查询 - 渐进式代码教程</p>
     </footer>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
-    <script src="script.js"></script>
 </body>
 </html>

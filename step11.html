@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Step 05 - 网络请求查询</title>
+    <title>Step 11 - 数据管理</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
@@ -12,8 +12,8 @@
 <body>
     <header>
         <div class="container">
-            <h1>🚄 Step 05 - 网络请求查询</h1>
-            <p class="subtitle">新增HttpUtil，调用API查询车票 (5分)</p>
+            <h1>🚄 Step 11 - 数据管理</h1>
+            <p class="subtitle">保存城市选择信息 (3分)</p>
             <a href="index.html" class="back-btn">← 返回首页</a>
         </div>
     </header>
@@ -21,19 +21,19 @@
     <div class="container">
         <div class="info-box">
             <h3>📋 功能说明</h3>
-            <p>在Step01~04基础上新增网络请求查询功能：</p>
+            <p>在Step01~10基础上新增数据管理功能：</p>
             <ul>
-                <li>✅ Step01~04的所有功能</li>
-                <li>🆕 新增HttpUtil网络请求工具类</li>
-                <li>🆕 DetailPage调用API查询车票数据</li>
-                <li>🆕 显示加载状态和查询结果</li>
+                <li>✅ Step01~10的所有功能</li>
+                <li>🆕 新增PreferencesUtil数据持久化工具</li>
+                <li>🆕 保存用户选择的城市信息</li>
+                <li>🆕 APP重启后自动加载上次选择</li>
             </ul>
         </div>
 
         <div class="tabs">
             <button class="tab-btn active" onclick="showStep(1)">
-                Step 05
-                <span>含网络请求</span>
+                Step 11
+                <span>含数据管理</span>
             </button>
         </div>
 
@@ -58,6 +58,7 @@
 import { resourceManager } from '@kit.LocalizationKit'
 import { util } from '@kit.ArkTS'
 import { CityModel } from '../model/CityModel'
+import { PreferencesUtil } from '../utils/PreferencesUtil'
 
 @Entry
 @Component
@@ -71,6 +72,7 @@ struct Index {
 
   async aboutToAppear() {
     await this.loadCityData()
+    await this.loadSavedData()
   }
 
   getTodayDate(): string {
@@ -95,16 +97,29 @@ struct Index {
     }
   }
 
+  async loadSavedData() {
+    const savedStart = await PreferencesUtil.getCity('startCity')
+    const savedEnd = await PreferencesUtil.getCity('endCity')
+    if (savedStart) {
+      this.startCity = savedStart
+    }
+    if (savedEnd) {
+      this.endCity = savedEnd
+    }
+  }
+
   openCityDialog(type: string) {
     this.selectType = type
     this.showCityDialog = true
   }
 
-  selectCity(city: string) {
+  async selectCity(city: string) {
     if (this.selectType === 'start') {
       this.startCity = city
+      await PreferencesUtil.saveCity('startCity', city)
     } else {
       this.endCity = city
+      await PreferencesUtil.saveCity('endCity', city)
     }
     this.showCityDialog = false
   }
@@ -252,6 +267,102 @@ struct Index {
 
             <div class="file-block">
                 <div class="file-header">
+                    <span>📄 utils/PreferencesUtil.ets</span>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+                </div>
+                <pre><code class="language-typescript">import { preferences } from '@kit.ArkData'
+import { Context } from '@kit.AbilityKit'
+
+class PreferencesUtilClass {
+  private dataPreferences: preferences.Preferences | null = null
+
+  async initPreferences(context: Context): Promise<void> {
+    try {
+      this.dataPreferences = await preferences.getPreferences(context, 'trainTicketData')
+    } catch (error) {
+      console.error('初始化失败:', JSON.stringify(error))
+    }
+  }
+
+  async saveCity(key: string, value: string): Promise<void> {
+    if (this.dataPreferences) {
+      await this.dataPreferences.put(key, value)
+      await this.dataPreferences.flush()
+    }
+  }
+
+  async getCity(key: string): Promise<string> {
+    if (this.dataPreferences) {
+      return await this.dataPreferences.get(key, '') as string
+    }
+    return ''
+  }
+}
+
+export const PreferencesUtil = new PreferencesUtilClass()
+</code></pre>
+            </div>
+
+            <div class="file-block">
+                <div class="file-header">
+                    <span>📄 entryability/EntryAbility.ets</span>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+                </div>
+                <pre><code class="language-typescript">import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit'
+import { hilog } from '@kit.PerformanceAnalysisKit'
+import { window } from '@kit.ArkUI'
+import { notificationManager } from '@kit.NotificationKit'
+import { PreferencesUtil } from '../utils/PreferencesUtil'
+
+const DOMAIN = 0x0000
+
+export default class EntryAbility extends UIAbility {
+  onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {    
+  }
+  onDestroy(): void { 
+  }
+  async onWindowStageCreate(windowStage: window.WindowStage): Promise<void> {    
+    await PreferencesUtil.initPreferences(this.context)    
+    this.publishNotification()   
+    windowStage.loadContent('pages/Index', (err) => {
+      if (err.code) {
+        hilog.error(DOMAIN, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err))
+        return
+      }
+    })
+  }
+  async publishNotification(): Promise<void> {
+    try {
+      const notificationRequest: notificationManager.NotificationRequest = {
+        id: 1,
+        content: {
+          notificationContentType: notificationManager.ContentType.NOTIFICATION_CONTENT_BASIC_TEXT,
+          normal: {
+            title: '火车票查询',
+            text: '欢迎使用火车票查询系统'
+          }
+        }
+      }
+      await notificationManager.publish(notificationRequest)
+    } catch (error) {
+      hilog.error(DOMAIN, 'testTag', 'Failed to publish notification: %{public}s', JSON.stringify(error))
+    }
+  }
+
+  onWindowStageDestroy(): void {   
+  }
+
+  onForeground(): void {    
+  }
+
+  onBackground(): void {
+  }
+}
+</code></pre>
+            </div>
+
+            <div class="file-block">
+                <div class="file-header">
                     <span>📄 utils/HttpUtil.ets</span>
                     <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
                 </div>
@@ -320,14 +431,29 @@ export const HttpUtil = new HttpUtilClass()
                 <pre><code class="language-typescript">import router from '@ohos.router'
 import { HttpUtil } from '../utils/HttpUtil'
 
+interface SeatInfo {
+  seatType: string
+  price: number
+  status: string
+}
+
+interface TrainInfo {
+  trainNo: string
+  departTime: string
+  arriveTime: string
+  departStation: string
+  arriveStation: string
+  seats: SeatInfo[]
+}
+
 @Entry
 @Component
 struct DetailPage {
   @State startCity: string = ''
   @State endCity: string = ''
   @State date: string = ''
+  @State trainList: TrainInfo[] = []
   @State isLoading: boolean = false
-  @State resultText: string = ''
 
   aboutToAppear() {
     const params = router.getParams() as Record<string, string>
@@ -343,12 +469,154 @@ struct DetailPage {
       console.log('开始查询:', this.startCity, this.endCity, this.date)
       const result = await HttpUtil.queryTrainTicket(this.startCity, this.endCity, this.date)
       console.log('HTTP响应:', result)
-      this.resultText = result
+      
+      if (result.includes('HTTP错误') || result.includes('网络请求失败')) {
+        console.log('请求失败:', result)
+        this.trainList = []
+        this.isLoading = false
+        return
+      }
+      const fullMessage = this.extractSSEContent(result)
+      console.log('提取的内容:', fullMessage)
+      this.parseTrains(fullMessage)
+      console.log('解析后的列车数量:', this.trainList.length)
     } catch (error) {
       console.error('查询异常:', error)
-      this.resultText = '查询失败'
+      this.trainList = []
     }
     this.isLoading = false
+  }
+
+  extractSSEContent(sseData: string): string {
+    const lines: string[] = sseData.split('\n')
+    let fullMessage: string = ''
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim()
+      if (line.startsWith('data:')) {
+        const jsonStr: string = line.substring(5).trim()
+        if (jsonStr && jsonStr !== '[DONE]') {
+          try {
+            const jsonData = JSON.parse(jsonStr) as Record<string, Object>
+            if (jsonData.event === 'message' && jsonData.content) {
+              fullMessage += String(jsonData.content)
+            }
+          } catch (e) {
+          }
+        }
+      }
+    }
+    
+    return fullMessage
+  }
+
+  parseTrains(message: string): void {
+    try {
+      console.log('开始解析消息，长度:', message?.length)
+      if (!message || message.trim().length === 0) {
+        console.log('消息为空')
+        this.trainList = []
+        return
+      }
+      
+      let jsonStr = message.trim()
+      const jsonMatch = jsonStr.match(/\[\s*\{[\s\S]*\}\s*\]/)
+      if (jsonMatch) {
+        console.log('找到JSON数组')
+        jsonStr = jsonMatch[0]
+      }
+      
+      const trainData: TrainInfo[] = JSON.parse(jsonStr) as TrainInfo[]
+      console.log('JSON解析成功，车次数:', trainData.length)
+      
+      this.trainList = trainData.filter(train => 
+        train.trainNo && train.departTime && train.arriveTime
+      )
+      console.log('过滤后的车次数:', this.trainList.length)
+    } catch (error) {
+      console.error('解析失败:', error)
+      this.trainList = []
+    }
+  }
+
+  @Builder
+  buildTrainCard(train: TrainInfo) {
+    Column({ space: 12 }) {
+      Row() {
+        Text(train.trainNo)
+          .fontSize(22)
+          .fontWeight(FontWeight.Bold)
+          .fontColor('#333333')
+          .layoutWeight(1)
+
+        Text(train.seats.some(s => s.status.includes('有票') || s.status.includes('剩余')) ? '有票' : '查询中')
+          .fontSize(13)
+          .fontColor(train.seats.some(s => s.status.includes('有票') || s.status.includes('剩余')) ? '#52C41A' : '#999999')
+          .fontWeight(FontWeight.Medium)
+      }
+      .width('100%')
+
+      Row() {
+        Column({ space: 6 }) {
+          Text(train.departTime || '--:--')
+            .fontSize(28)
+            .fontWeight(FontWeight.Bold)
+            .fontColor('#333333')
+          Text(train.departStation || this.startCity)
+            .fontSize(14)
+            .fontColor('#666666')
+            .maxLines(1)
+        }
+        .layoutWeight(1)
+
+        Column({ space: 4 }) {
+          Text('→')
+            .fontSize(18)
+            .fontColor('#999999')
+            .width(40)
+            .textAlign(TextAlign.Center)
+          Text('直达')
+            .fontSize(12)
+            .fontColor('#95DE64')
+            .textAlign(TextAlign.Center)
+        }
+        .width(40)
+        .justifyContent(FlexAlign.Center)
+
+        Column({ space: 6 }) {
+          Text(train.arriveTime || '--:--')
+            .fontSize(28)
+            .fontWeight(FontWeight.Bold)
+            .fontColor('#333333')
+          Text(train.arriveStation || this.endCity)
+            .fontSize(14)
+            .fontColor('#666666')
+            .maxLines(1)
+        }
+        .layoutWeight(1)
+        .alignItems(HorizontalAlign.End)
+      }
+      .width('100%')
+
+      Column({ space: 8 }) {
+        ForEach(train.seats || [], (seat: SeatInfo) => {
+          Text(`${seat.seatType} ¥${seat.price} ${seat.status}`)
+            .fontSize(14)
+            .fontColor(seat.status.includes('有票') || seat.status.includes('剩余') ? '#52C41A' : (seat.status.includes('无票') || seat.status.includes('售完') ? '#FF4D4F' : '#666666'))
+        }, (seat: SeatInfo, index: number) => index.toString())
+      }
+      .width('100%')
+      
+      Text('仅供参考，实际以12306官网为准')
+        .fontSize(11)
+        .fontColor('#999999')
+        .width('100%')
+        .margin({ top: 8 })
+    }
+    .width('100%')
+    .padding(16)
+    .backgroundColor(Color.White)
+    .margin({ bottom: 12 })
   }
 
   build() {
@@ -387,11 +655,22 @@ struct DetailPage {
         .justifyContent(FlexAlign.Center)
       } else {
         Scroll() {
-          Text(this.resultText)
-            .width('90%')
-            .padding(16)
-            .fontSize(12)
-            .fontColor('#333')
+          Column({ space: 16 }) {
+            if (this.trainList.length > 0) {
+              ForEach(this.trainList, (train: TrainInfo) => {
+                this.buildTrainCard(train)
+              }, (train: TrainInfo) => train.trainNo)
+            } else {
+              Text('暂无查询结果')
+                .fontSize(16)
+                .fontColor('#999')
+                .width('100%')
+                .textAlign(TextAlign.Center)
+                .padding(40)
+            }
+          }
+          .width('100%')
+          .padding(16)
         }
         .width('100%')
         .layoutWeight(1)

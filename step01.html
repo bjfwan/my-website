@@ -3,36 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Step01 - 城市选择功能</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <title>Step 01 - 城市选择功能</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="script.js"></script>
 </head>
 <body>
     <header>
         <div class="container">
-            <h1>🚄 Step01 - 城市选择功能</h1>
-            <p class="subtitle"><a href="index.html" style="color: #58a6ff;">← 返回主页</a> | 下一步: <a href="step02.html" style="color: #58a6ff;">Step02 →</a></p>
+            <h1>🚄 Step 01 - 城市选择功能</h1>
+            <p class="subtitle">读取城市数据，显示城市选择对话框 (10分)</p>
+            <a href="index.html" class="back-btn">← 返回首页</a>
         </div>
     </header>
 
     <div class="container">
         <div class="info-box">
             <h3>📋 功能说明</h3>
+            <p>实现出发地和目的地的城市选择功能：</p>
             <ul>
-                <li>✅ 读取city.json获取城市数据</li>
-                <li>✅ 显示出发地/目的地选择</li>
-                <li>✅ 弹出城市列表对话框</li>
-                <li>🎯 分值：10分</li>
+                <li>读取 <code>entry/src/main/resources/rawfile/city.json</code> 文件</li>
+                <li>JSON 解析成实体对象，获取城市数组</li>
+                <li>点击出发地/目的地弹出城市列表对话框</li>
+                <li>选择城市后显示在页面中</li>
             </ul>
         </div>
 
-        <div class="file-block">
-            <div class="file-header">
-                <span class="file-name">📄 Index.ets</span>
-                <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showStep(1)">
+                Step 01
+                <span>城市选择</span>
+            </button>
+        </div>
+
+        <div id="step-1" class="step-content active">
+            <div class="file-block">
+                <div class="file-header">
+                    <span>📄 model/CityModel.ets</span>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+                </div>
+                <pre><code class="language-typescript">export class CityModel {
+  cities: string[] = []
+}
+</code></pre>
             </div>
-            <pre><code class="language-typescript">import router from '@ohos.router'
-import { resourceManager } from '@kit.LocalizationKit'
+
+            <div class="file-block">
+                <div class="file-header">
+                    <span>📄 pages/Index.ets</span>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+                </div>
+                <pre><code class="language-typescript">import { resourceManager } from '@kit.LocalizationKit'
 import { util } from '@kit.ArkTS'
 import { CityModel } from '../model/CityModel'
 
@@ -165,34 +187,14 @@ struct Index {
     .width('100%')
     .height('100%')
   }
-}</code></pre>
-        </div>
-
-        <div class="file-block">
-            <div class="file-header">
-                <span class="file-name">📄 CityModel.ets</span>
-                <button class="copy-btn" onclick="copyCode(this)">📋 复制代码</button>
+}
+</code></pre>
             </div>
-            <pre><code class="language-typescript">export class CityModel {
-  cities: string[] = []
-}</code></pre>
-        </div>
-
-        <div class="info-box" style="margin-top: 30px;">
-            <h3>💡 使用提示</h3>
-            <p>1. 将 <strong>Index.ets</strong> 复制到: <code>entry/src/main/ets/pages/</code></p>
-            <p>2. 将 <strong>CityModel.ets</strong> 复制到: <code>entry/src/main/ets/model/</code></p>
-            <p>3. 确保 <strong>city.json</strong> 放在: <code>entry/src/main/resources/rawfile/</code></p>
-            <p>4. 运行项目测试城市选择功能</p>
         </div>
     </div>
 
     <footer>
-        <p><a href="index.html">返回主页</a> | 下一步: <a href="step02.html">Step02 - 日期选择功能 →</a></p>
+        <p>© 2024 HarmonyOS 火车票查询 - 渐进式代码教程</p>
     </footer>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
-    <script src="script.js"></script>
 </body>
 </html>
